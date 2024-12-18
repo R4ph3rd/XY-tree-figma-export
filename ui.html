@@ -1,0 +1,57 @@
+<style>
+    .exporttree {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+    }
+    .exporttree button {
+        background-color: #007aff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .exporttree button:hover {
+        background-color: #005fcc;
+    }
+</style>
+<div class="exporttree">
+    <h2>Export Tree</h2>
+    <p>Select a node and export its tree in JSON and HTML.</p>
+    <button id="export-button-html">Export HTML</button>
+    <button id="export-button-json">Export JSON</button>
+
+    <script>
+        const htmlButton = document.getElementById("export-button-html");
+        const jsonButton = document.getElementById("export-button-json");
+
+        htmlButton.addEventListener("click", () => {
+            parent.postMessage({ pluginMessage: { type: "export-html" } }, "*");
+        });
+
+        jsonButton.addEventListener("click", () => {
+            parent.postMessage({ pluginMessage: { type: "export-json" } }, "*");
+        });
+
+        window.onmessage = (event) => {
+            const msg = event.data.pluginMessage;
+            if (msg.type === "html") {
+                const blob = new Blob([msg.content], { type: "text/html" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "tree.html";
+                a.click();
+            } else if (msg.type === "json") {
+                const blob = new Blob([msg.content], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "tree.json";
+                a.click();
+            }
+        };
+    </script>
+</div>
