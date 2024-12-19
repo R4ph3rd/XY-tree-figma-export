@@ -41,8 +41,8 @@ function buildTree(node: any, parentTransform: any): any {
         name:  setLeaf(node),
         width: width || 0,
         height: height || 0,
-        top: relativeY,
-        left: relativeX,
+        top: node.x,
+        left: node.y,
         children: [] as any[],
     };
 
@@ -83,6 +83,19 @@ function getStrokeHexColor(node: any): string | null {
 }
 
 function generateHTML(tree: any): string {
+    const boxStyling = `<style>
+        [data-name="Leaf"]{
+            border: 1px solid #21D1FD;
+        }
+        [data-name="Image"]{
+            border: 1px solid #21FD28;
+            background-color: #21FD2830;
+        }
+        [data-name="Text"]{
+            border: 1px solid #FD2024;
+        }
+    </style>\n`;
+    
     const createElement = (node: any): string => {
         const style = `style="position: relative; top: ${node.top}px; left: ${node.left}px; width: ${node.width}px; height: ${node.height}px;"`;
 
@@ -93,5 +106,5 @@ function generateHTML(tree: any): string {
 
         return `<div data-name="${node.name}" ${style}>${childrenHTML}</div>`;
     };
-    return createElement(tree);
+    return boxStyling + createElement(tree);
 }
