@@ -62,7 +62,7 @@ function setLeaf(node:any): any{
     const color = getStrokeHexColor(node);
 
     if (color == '#21FD28') return 'Image';
-    if (color == '#FD2124') return 'Text';
+    if (color == '#FD2024') return 'Feature';
     if (color == '#21D1FD') return 'Leaf';
     return 'Leaf';
 }
@@ -94,7 +94,7 @@ function generateHTML(tree: any): string {
             display:inline-block;
             position:absolute !important;
         }
-        [data-name="Text"]{
+        [data-name="Feature"]{
             border: 1px solid #FD2024;
             display:inline-block;
             position:absolute !important;
