@@ -28,36 +28,35 @@ figma.ui.onmessage = async (msg) => {
 };
 
 function buildTree(node: any, parentTransform: any): any {
-    const { width, height } = node;
-    const absoluteX = node.absoluteTransform[0][2];
-    const absoluteY = node.absoluteTransform[1][2];
-    const parentX = parentTransform[0][2];
-    const parentY = parentTransform[1][2];
+  const { width, height } = node;
+  const absoluteX = node.absoluteTransform[0][2];
+  const absoluteY = node.absoluteTransform[1][2];
+  const parentX = parentTransform[0][2];
+  const parentY = parentTransform[1][2];
 
-    const relativeX = absoluteX - parentX;
-    const relativeY = absoluteY - parentY;
+  const relativeX = absoluteX - parentX;
+  const relativeY = absoluteY - parentY;
 
-    const treeNode = {
-        name:  setLeaf(node),
-        width: width || 0,
-        height: height || 0,
-        top: node.x,
-        left: node.y,
-        children: [] as any[],
-    };
+  // Do NOT predefine children: [] here
+  const treeNode: any = {
+    name: node.name,
+    type: setLeaf(node),
+    width: width || 0,
+    height: height || 0,
+    top: relativeY,
+    left: relativeX,
+  };
 
-    if ("children" in node) {
-        node.children.forEach((child: any) => {
-            treeNode.children.push(buildTree(child, node.absoluteTransform));
-        });
+  if ("children" in node) {
+    const kids = (node as any).children ?? [];
+    if (kids.length > 0) {
+      treeNode.children = kids.map((child: any) => buildTree(child, node.absoluteTransform));
     }
+  }
 
-    if (treeNode.children.length == 0){
-        delete treeNode.children;
-    }
-
-    return treeNode;
+  return treeNode;
 }
+
 
 function setLeaf(node:any): any{
     const color = getStrokeHexColor(node);
@@ -70,7 +69,7 @@ function setLeaf(node:any): any{
 
 function getStrokeHexColor(node: any): string | null {
     if ("strokes" in node && node.strokes.length > 0) {
-        const stroke = node.strokes[0]; // Get the first stroke
+        const stroke = node.strokes[0];
         if (stroke.type === "SOLID") {
             const color = stroke.color;
             const r = Math.round(color.r * 255);
@@ -86,13 +85,19 @@ function generateHTML(tree: any): string {
     const boxStyling = `<style>
         [data-name="Leaf"]{
             border: 1px solid #21D1FD;
+            display:inline-block;
+            position:absolute !important;
         }
         [data-name="Image"]{
             border: 1px solid #21FD28;
             background-color: #21FD2830;
+            display:inline-block;
+            position:absolute !important;
         }
         [data-name="Text"]{
             border: 1px solid #FD2024;
+            display:inline-block;
+            position:absolute !important;
         }
     </style>\n`;
     
@@ -104,7 +109,8 @@ function generateHTML(tree: any): string {
             childrenHTML = node.children.map((child: any) => createElement(child)).join('');
         }
 
-        return `<div data-name="${node.name}" ${style}>${childrenHTML}</div>`;
+        return `<div data-name="${node.type}" ${style}>${childrenHTML}</div>`;
     };
     return boxStyling + createElement(tree);
+}
 }
